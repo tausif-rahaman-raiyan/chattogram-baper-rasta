@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101411">
+<title>চাটগাঁর রাস্তা — Chaṭgā̃r Rasta</title>
+<style>
+:root{--bg:#101411;--panel:#1a211c;--line:#344239;--lime:#c7ff4d;--red:#ff4d59;--yellow:#ffd35a;--text:#f3f7ed;--muted:#aab5a9}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans Bengali",sans-serif}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;background:#8ac8d6}
+.hud{position:fixed;inset:0;pointer-events:none;padding:14px;display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.brand,.stat,.tip,.bottom-panel{background:#111914e8;border:1px solid #ffffff20;border-radius:14px;box-shadow:0 6px 22px #0003;backdrop-filter:blur(7px)}
+.brand{padding:10px 13px;max-width:70%}.brand strong{display:block;font-size:clamp(16px,2.5vw,24px);letter-spacing:-.5px}.brand small{color:#b9c7b7;font-size:11px}.stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.stat{padding:8px 10px;min-width:78px}.stat small{display:block;color:#aab5a9;font-size:10px}.stat b{font-size:17px}.danger{color:var(--red)}.lime{color:var(--lime)}
+.center-msg{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);width:min(90%,440px);text-align:center;background:#111914ed;border:1px solid #ffffff25;border-radius:22px;padding:22px;pointer-events:auto;box-shadow:0 15px 60px #0007}.center-msg h1{font-size:clamp(25px,5vw,42px);margin:0 0 6px}.center-msg p{color:#c0cbc0;line-height:1.55;margin:8px 0 16px}.primary{background:var(--lime);color:#17200f;border:0;border-radius:12px;padding:13px 20px;font-weight:900;font-size:16px;cursor:pointer}.secondary{background:#26332a;color:white;border:1px solid #455747;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.bottom{display:flex;justify-content:space-between;align-items:end;gap:12px}.tip{padding:9px 12px;font-size:12px;color:#dce5da;max-width:52%}.bottom-panel{padding:9px;display:flex;gap:7px;pointer-events:auto}.control{min-width:49px;min-height:45px;background:#26332add;border:1px solid #657366;border-radius:12px;color:#fff;font-size:18px;font-weight:900;touch-action:none}.control:active{background:var(--lime);color:#17200f}.control small{display:block;font-size:9px;font-weight:600}.hidden{display:none!important}.tag{display:inline-block;padding:3px 7px;border-radius:7px;background:#29372b;color:var(--lime);font-size:11px;font-weight:800;margin:2px}.owner{position:fixed;left:50%;bottom:7px;transform:translateX(-50%);z-index:5;font-size:11px;color:#f2f4e9;background:#111914c9;border:1px solid #ffffff22;border-radius:999px;padding:5px 10px;text-decoration:none;white-space:nowrap;backdrop-filter:blur(5px)}.owner strong{color:var(--lime)}.route-select{display:block;width:100%;margin:12px 0 0;background:#202d24;color:#fff;border:1px solid #536756;border-radius:10px;padding:10px;font:inherit;font-size:13px}
+@media(max-width:600px){.hud{padding:8px}.brand{padding:8px}.brand small{display:none}.stat{padding:6px 8px;min-width:62px}.stat b{font-size:14px}.tip{font-size:10px;max-width:42%}.bottom-panel{gap:4px;padding:5px}.control{min-width:42px;min-height:43px}.stats{gap:4px}}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Chattogram arcade driving game"></canvas>
+<div class="hud">
+ <div class="top">
+  <div class="brand"><strong>চাটগাঁর রাস্তা</strong><small>CHAṬGĀ̃R RASTA · CHAOTIC CITY DRIVE</small></div>
+  <div class="stats">
+   <div class="stat"><small>জাতীয় ক্ষতি</small><b id="damage">৳০</b></div>
+   <div class="stat"><small>স্কোর</small><b id="score">০</b></div>
+   <div class="stat"><small>চার্জ</small><b id="charge" class="lime">১০০%</b></div>
+  </div>
+ </div>
+ <div id="start" class="center-msg">
+   <h1>চাটগাঁর রাস্তা</h1>
+   <div><span class="tag">চট্টেশ্বরী রোড</span><span class="tag">চকবাজার</span><span class="tag">জামালখান</span><span class="tag">নিউ মার্কেট</span></div>
+   <label for="routeSelect" style="display:block;text-align:left;font-size:12px;color:#c0cbc0;margin-top:10px">শুরু করার রাস্তা বেছে নিন</label><select id="routeSelect" class="route-select"><option value="0">চট্টেশ্বরী রোড → চকবাজার সার্কেল</option><option value="1">চকবাজার → কলেজ রোড</option><option value="2">জামালখান → চেরাগী পাহাড়</option><option value="3">নিউ মার্কেট → কাজীর দেউড়ি</option><option value="4">জিইসি → ২ নং গেট</option><option value="5">মুরাদপুর → বহদ্দারহাট</option><option value="6">আগ্রাবাদ → বাদামতলী</option><option value="7">টাইগারপাস → লালখান বাজার</option><option value="8">বায়েজিদ → অক্সিজেন</option><option value="9">পতেঙ্গা সি-বিচ রোড</option><option value="10">আন্দরকিল্লা → জুবিলী রোড</option><option value="11">কাপাসগোলা → আরাকান রোড</option><option value="12">কেবি আমান আলী রোড</option><option value="13">কাজীর দেউড়ি → গোলপাহাড়</option><option value="14">পলিটেকনিক → শোলশহর</option><option value="15">সদরঘাট → স্ট্র্যান্ড রোড</option></select>
+   <p>রাস্তা কি আপনার বাপের? চাটগাঁর রাস্তায় নামেন! গাড়ি এড়ান, বাস থেকে দূরে থাকেন, আর বেশি ক্ষতি করার আগে পুলিশের হাত থেকে পালান।</p>
+   <button id="startBtn" class="primary">রাস্তায় নামেন ▶</button>
+   <p style="font-size:11px">W/↑ চালান · A/D বা ←/→ ঘোরান · S/↓ ব্রেক · Shift/Space বুস্ট · H হর্ন</p>
+ </div>
+ <div id="gameover" class="center-msg hidden">
+   <h1>গাড়ি থামান! 🚨</h1><p id="endText">পুলিশ আপনাকে ধরে ফেলেছে।</p>
+   <button id="restartBtn" class="primary">আবার চালান ↻</button>
+ </div>
+ <a class="owner" href="https://tausif-rahaman-raiyan.github.io/" target="_blank" rel="noopener noreferrer">Made with ♥ by <strong>Tausif Rahaman Raiyan</strong> ↗</a>
+ <div class="bottom">
+  <div class="tip" id="location">📍 জিইসি মোড় → ২ নং গেট<br>🚦 চাটগাঁর ট্রাফিক: ভয়াবহ</div>
+  <div class="bottom-panel">
+   <button class="control" data-key="ArrowLeft">◀<small>বাঁয়ে</small></button>
+   <button class="control" data-key="ArrowDown">▼<small>ব্রেক</small></button>
+   <button class="control" data-key="ArrowUp">▲<small>চালান</small></button>
+   <button class="control" data-key="ArrowRight">▶<small>ডানে</small></button>
+   <button class="control" data-key="Space">⚡<small>বুস্ট</small></button>
+   <button class="control" data-key="KeyH">📣<small>হর্ন</small></button>
+  </div>
+ </div>
+</div>
+<script>
+(() => {
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+const keys=new Set();let running=false,ended=false,last=0,elapsed=0,roadScroll=0,score=0,damage=0,charge=100,speed=0.36,boost=0,horn=0,shake=0,spawnTimer=0,traffic=[],particles=[],playerX=0,steer=0,brake=0;
+let best=0;try{best=Number(localStorage.getItem('ctg-best')||0)}catch{}
+const routes=[
+ {from:'চট্টেশ্বরী রোড',to:'চকবাজার সার্কেল',district:'চকবাজার',sign:'CHATTESWARI RD'},
+ {from:'চকবাজার',to:'কলেজ রোড',district:'চকবাজার',sign:'COLLEGE ROAD'},
+ {from:'জামালখান',to:'চেরাগী পাহাড়',district:'জামালখান',sign:'JAMAL KHAN RD'},
+ {from:'নিউ মার্কেট',to:'কাজীর দেউড়ি',district:'কোতোয়ালি',sign:'JUBILEE ROAD'},
+ {from:'জিইসি মোড়',to:'২ নং গেট',district:'পাঁচলাইশ',sign:'CDA AVENUE'},
+ {from:'মুরাদপুর',to:'বহদ্দারহাট',district:'পাঁচলাইশ',sign:'ARKAN ROAD'},
+ {from:'আগ্রাবাদ',to:'বাদামতলী',district:'আগ্রাবাদ',sign:'AGRABAD ACCESS RD'},
+ {from:'টাইগারপাস',to:'লালখান বাজার',district:'টাইগারপাস',sign:'TIGERPASS'},
+ {from:'বায়েজিদ',to:'অক্সিজেন',district:'বায়েজিদ',sign:'BAYEZID BOSTAMI RD'},
+ {from:'পতেঙ্গা',to:'সি-বিচ রোড',district:'পতেঙ্গা',sign:'SEA BEACH ROAD'},
+ {from:'আন্দরকিল্লা',to:'জুবিলী রোড',district:'কোতোয়ালি',sign:'ANDERKILLA'},
+ {from:'কাপাসগোলা',to:'আরাকান রোড',district:'চকবাজার',sign:'ARAKAN ROAD'},
+ {from:'কেবি আমান আলী রোড',to:'বহদ্দারহাট',district:'চকবাজার',sign:'KB AMAN ALI RD'},
+ {from:'কাজীর দেউড়ি',to:'গোলপাহাড়',district:'জামালখান',sign:'GOLPAHAR CIRCLE'},
+ {from:'পলিটেকনিক',to:'শোলশহর',district:'পাঁচলাইশ',sign:'SHOLOSHOHOR'},
+ {from:'সদরঘাট',to:'স্ট্র্যান্ড রোড',district:'বন্দর',sign:'STRAND ROAD'}
+];
+let placeIndex=0,placeDistance=0;
+function reset(){running=true;ended=false;elapsed=0;roadScroll=0;score=0;damage=0;charge=100;speed=.36;boost=0;horn=0;shake=0;spawnTimer=.3;traffic=[];particles=[];playerX=0;steer=0;brake=0;placeIndex=Math.max(0,Math.min(routes.length-1,Number($('routeSelect').value)||0));placeDistance=0;$('start').classList.add('hidden');$('gameover').classList.add('hidden');updateHud()}
+$('startBtn').onclick=reset;$('restartBtn').onclick=reset;
+function keyName(e){return e.code==='Space'?'Space':e.code}
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();keys.add(keyName(e));if(e.code==='KeyH')horn=.3;if((e.code==='Enter'||e.code==='NumpadEnter')&&!running)reset();if(e.code==='KeyM')muted=!muted});
+addEventListener('keyup',e=>keys.delete(keyName(e)));
+document.querySelectorAll('.control').forEach(b=>{const k=b.dataset.key;const down=e=>{e.preventDefault();keys.add(k);if(k==='KeyH')horn=.3};const up=e=>{e.preventDefault();keys.delete(k)};b.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,up))});
+let muted=true;function beep(freq=170,dur=.08){if(muted)return;try{const ac=beep.ac||(beep.ac=new (window.AudioContext||window.webkitAudioContext)());const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=freq;o.connect(g);g.connect(ac.destination);g.gain.value=.04;o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+dur);o.stop(ac.currentTime+dur)}catch{}}
+function poly(points,fill,stroke=null,lw=1){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}}
+function line(x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function roadAt(y){const t=Math.max(0,Math.min(1,(y-H*.22)/(H*.92-H*.22)));const curve=Math.sin(roadScroll*.0011)*W*.045;const center=W*.5+curve*(t*t)+Math.sin(roadScroll*.00048+1)*W*.018*t;const half=W*(.045+.39*t);return {center,half,t}}
+function drawBuilding(x,y,w,h,color,seed){ctx.fillStyle=color;ctx.fillRect(x,y,w,h);ctx.fillStyle='#202d30';for(let yy=y+6;yy<y+h-4;yy+=13)for(let xx=x+5;xx<x+w-4;xx+=11){ctx.fillStyle=((xx+yy+seed)%3)?'#f3c96d':'#9ac6d1';ctx.fillRect(xx,yy,5,7)}ctx.fillStyle='#303a36';ctx.fillRect(x-3,y+h-4,w+6,5)}
+function drawScenery(){const horizon=H*.22;let sky=ctx.createLinearGradient(0,0,0,H*.55);sky.addColorStop(0,'#70b6d1');sky.addColorStop(1,'#e8d4a3');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*.55);
+ // Chattogram hill silhouettes
+ poly([[0,horizon+60],[W*.1,horizon+12],[W*.2,horizon+42],[W*.34,horizon-3],[W*.45,horizon+55],[W*.61,horizon+20],[W*.73,horizon+54],[W*.86,horizon+4],[W,horizon+45],[W,H*.53],[0,H*.53]],'#68866b');
+ poly([[0,horizon+78],[W*.18,horizon+42],[W*.32,horizon+74],[W*.51,horizon+36],[W*.7,horizon+70],[W*.89,horizon+40],[W,horizon+65],[W,H*.56],[0,H*.56]],'#7d9274');
+ ctx.fillStyle='#a4aa82';ctx.fillRect(0,H*.4,W,H*.6);
+ // roadside shops / signs at repeating positions
+ for(let i=0;i<13;i++){let y=horizon+((i*73+roadScroll*.72)%(H*.72));let t=(y-horizon)/(H*.72);let sc=.25+t*1.2;let side=i%2?-1:1;let x=W*.5+side*(W*.12+t*W*.42);let w=(38+(i%3)*15)*sc,h=(42+(i%4)*12)*sc;drawBuilding(x-(side<0?w:0),y-h,w,h,['#d5b58b','#b6c8b5','#d78e6f','#c8c2a1'][i%4],i);if(sc>.7){ctx.fillStyle=['#b52828','#246a7b','#276d3e'][i%3];ctx.fillRect(x-(side<0?w:0),y-h+4,w,12*sc);ctx.fillStyle='white';ctx.font=`bold ${Math.max(6,8*sc)}px sans-serif`;ctx.fillText(['GEC','চা দোকান','CTG BUS'][i%3],x-(side<0?w:0)+3,y-h+13*sc)}}
+}
+function drawRoad(){const top=roadAt(H*.22),bottom=roadAt(H);poly([[top.center-top.half,H*.22],[top.center+top.half,H*.22],[bottom.center+bottom.half,H],[bottom.center-bottom.half,H]],'#454b4b');
+ // shoulders and curb stripes
+ for(let i=0;i<26;i++){let y=H*.22+((i*39+roadScroll*1.25)%(H*.78));let a=roadAt(y),b=roadAt(Math.min(H,y+Math.max(8,(y-H*.22)*.09)));const c=i%2?'#ece6d0':'#c44e45';poly([[a.center-a.half-5,y],[a.center-a.half+3,y],[b.center-b.half+3,Math.min(H,y+20)],[b.center-b.half-5,Math.min(H,y+20)]],c);poly([[a.center+a.half-3,y],[a.center+a.half+5,y],[b.center+b.half+5,Math.min(H,y+20)],[b.center+b.half-3,Math.min(H,y+20)]],c)}
+ // lane dividers perspective
+ for(let lane=1;lane<3;lane++){for(let i=0;i<18;i++){let y=H*.22+((i*68+roadScroll*1.5)%(H*.8));let y2=Math.min(H,y+Math.max(5,(y-H*.22)*.12));let a=roadAt(y),b=roadAt(y2);let x1=a.center-a.half+2*a.half*lane/3,x2=b.center-b.half+2*b.half*lane/3;line(x1,y,x2,y2,'#e9e3c7',Math.max(1,(y/H)*4))}}
+ // zebra crossing occasionally
+ let z=((roadScroll*.55)%(H*.8));if(z>H*.47&&z<H*.54){let y=z+H*.22,a=roadAt(y);for(let i=0;i<7;i++)poly([[a.center-a.half+i*a.half*2/7,y],[a.center-a.half+(i+.55)*a.half*2/7,y],[a.center-a.half+(i+.45)*a.half*2/7,y+13],[a.center-a.half+i*a.half*2/7,y+13]],'#eee9d5')}
+}
+function drawVehicle(x,y,w,h,type,color,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle='#0004';ctx.beginPath();ctx.ellipse(2,h*.38,w*.65,h*.2,0,0,Math.PI*2);ctx.fill();
+ // wheels
+ ctx.fillStyle='#17191a';ctx.fillRect(-w*.53,-h*.23,w*.18,h*.25);ctx.fillRect(w*.35,-h*.23,w*.18,h*.25);ctx.fillRect(-w*.53,h*.22,w*.18,h*.25);ctx.fillRect(w*.35,h*.22,w*.18,h*.25);
+ poly([[-w*.45,-h*.5],[w*.38,-h*.5],[w*.5,-h*.3],[w*.53,h*.35],[w*.35,h*.5],[-w*.38,h*.5],[-w*.53,h*.32],[-w*.52,-h*.28]],color,'#202322',2);
+ if(type==='bus'){ctx.fillStyle='#d7e4df';ctx.fillRect(-w*.36,-h*.39,w*.72,h*.28);ctx.fillStyle='#222f32';for(let i=0;i<4;i++)ctx.fillRect(-w*.32+i*w*.17,-h*.36,w*.12,h*.2);ctx.fillStyle='#f1d75b';ctx.fillRect(-w*.38,-h*.05,w*.76,h*.07);ctx.fillStyle='#222';ctx.font=`bold ${Math.max(7,w*.17)}px sans-serif`;ctx.textAlign='center';ctx.fillText('CTG',0,h*.18);ctx.fillStyle='#ff3434';ctx.fillRect(-w*.35,h*.36,w*.15,h*.06);ctx.fillRect(w*.2,h*.36,w*.15,h*.06)}
+ else{ctx.fillStyle='#243b42';ctx.fillRect(-w*.32,-h*.34,w*.64,h*.23);ctx.fillStyle='#ffdf8c';ctx.fillRect(-w*.39,h*.32,w*.18,h*.07);ctx.fillRect(w*.21,h*.32,w*.18,h*.07)}
+ ctx.restore()}
+function spawnTraffic(){let lane=Math.floor(Math.random()*3)-1;let r=roadAt(H*.62+Math.random()*H*.2);let y=H*.22+Math.random()*H*.25;const bus=Math.random()<.42;traffic.push({lane,y,depth:Math.random()*.08,type:bus?'bus':'car',color:bus?['#178e75','#d54c36','#d4a51b','#2871a5'][Math.floor(Math.random()*4)]:['#f0eee0','#b72e35','#3489a5','#343a40'][Math.floor(Math.random()*4)],v:.22+Math.random()*.45,passed:false,hit:false})}
+function drawTraffic(dt){for(const t of traffic){t.y+=dt*(H*.25)*(speed+t.v)*2.2;const a=roadAt(t.y);const x=a.center+t.lane*a.half*.56;const s=.2+a.t*1.35;drawVehicle(x,t.y, (t.type==='bus'?31:23)*s,(t.type==='bus'?64:43)*s,t.type,t.color,Math.sin(t.y*.02)*.02);
+ if(t.y>H*.70&&!t.passed){t.passed=true;score+=10}
+ if(!t.hit&&t.y>H*.78&&t.y<H*.94&&Math.abs((x-a.center)-playerX*W*.34)<(t.type==='bus'?W*.08:W*.06)){t.hit=true;damage+=t.type==='bus'?5000:1200;shake=9;charge=Math.max(0,charge-13);beep(75,.2);for(let i=0;i<12;i++)particles.push({x,y:t.y,vx:(Math.random()-.5)*180,vy:-Math.random()*150,life:.5+Math.random()*.5});if(t.type==='bus')endGame('বাসের সঙ্গে লাগছে! চাটগাঁর বাস কিন্তু মাফ করে না।');}
+ }traffic=traffic.filter(t=>t.y<H+100&&!t.hit)}
+function drawPlayer(){const a=roadAt(H*.85);const x=a.center+playerX*W*.34;drawVehicle(x,H*.82,Math.min(48,W*.09),Math.min(94,H*.15),'car','#e8f0e8',-steer*.09);return {x,y:H*.82}}
+function updateHud(){$('damage').textContent='৳'+Math.floor(damage).toLocaleString('bn-BD');$('score').textContent=Math.floor(score).toLocaleString('bn-BD');$('charge').textContent=Math.floor(charge).toLocaleString('bn-BD')+'%';$('charge').className=charge<25?'danger':'lime';const r=routes[placeIndex];$('location').innerHTML='📍 '+r.from+' → '+r.to+'<br>🛣️ '+r.sign+' · '+r.district+' · 🚦 যানজট: '+(speed>.7?'মাথা নষ্ট!':'ভয়াবহ')}
+function endGame(msg){if(ended)return;ended=true;running=false;best=Math.max(best,score);try{localStorage.setItem('ctg-best',best)}catch{}$('endText').textContent=msg+' আপনার ক্ষতি ৳'+Math.floor(damage).toLocaleString('bn-BD')+' · স্কোর '+Math.floor(score)+'.';$('gameover').classList.remove('hidden')}
+function drawParticles(dt){for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=180*dt;p.life-=dt;ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle='#ffcf52';ctx.fillRect(p.x,p.y,4,4)}ctx.globalAlpha=1;particles=particles.filter(p=>p.life>0)}
+function render(dt){ctx.save();if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.88}drawScenery();drawRoad();if(running){drawTraffic(dt);drawPlayer();drawParticles(dt)}else{drawTraffic(0);drawPlayer()}if(horn>0){ctx.fillStyle='#111a';ctx.fillRect(W*.38,H*.65,W*.24,32);ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText('পোঁওওওওও! 📣',W*.5,H*.65+21)}ctx.restore()}
+function update(dt){if(!running)return;elapsed+=dt;const forward=keys.has('ArrowUp')||keys.has('KeyW'),back=keys.has('ArrowDown')||keys.has('KeyS'),left=keys.has('ArrowLeft')||keys.has('KeyA'),right=keys.has('ArrowRight')||keys.has('KeyD'),boosting=keys.has('Space')||keys.has('ShiftLeft')||keys.has('ShiftRight');
+ steer=(right?1:0)-(left?1:0);playerX+=steer*dt*(back?.7:1.45);playerX=Math.max(-1.02,Math.min(1.02,playerX));if(Math.abs(playerX)>.93){damage+=dt*45;charge=Math.max(0,charge-dt*2)}
+ if(forward)speed=Math.min(1.15,speed+dt*.45);else speed=Math.max(.28,speed-dt*.13);if(back)speed=Math.max(.08,speed-dt*.85);
+ if(boosting&&charge>0){boost=1;charge=Math.max(0,charge-dt*27);speed=Math.min(1.35,speed+dt*1.4)}else{boost=0;charge=Math.min(100,charge+dt*3.5)}
+ roadScroll+=dt*H*(.24+speed*.8);placeDistance+=dt*(.24+speed*.8);if(placeDistance>18){placeDistance=0;placeIndex=(placeIndex+1)%routes.length}
+ spawnTimer-=dt;if(spawnTimer<=0){spawnTraffic();spawnTimer=Math.max(.42,1.35-speed*.55)+Math.random()*.5}
+ score+=dt*(5+speed*9);damage+=dt*(Math.random()<.04?1:0);horn=Math.max(0,horn-dt);if(horn>0&&Math.random()<.06)beep(240,.04);if(charge<=0)endGame('চার্জ শেষ! হলুদ দাগে থামা উচিত ছিল।');if(damage>16000)endGame('জাতীয় ক্ষতি এত বেশি—পুলিশ আপনাকে ধরে ফেলেছে।');if(elapsed>95)endGame('মিশন শেষ! চাটগাঁর রাস্তা জয় করেছেন—কিন্তু ক্ষতির হিসাব বাকি।');updateHud()}
+function loop(now){let dt=Math.min(.04,(now-last)/1000||0);last=now;update(dt);render(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
