@@ -19,13 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        # The repository must have Pages enabled once in Settings → Pages.
+        # The workflow token cannot enable the Pages site itself.
+        uses: actions/configure-pages@v6
       - name: Verify game entry point
         run: test -s index.html
       - name: Upload website artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
   deploy:
