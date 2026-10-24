@@ -20,10 +20,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: Validate game HTML and JavaScript
+        run: |
+          test -s index.html
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script(?:\\s[^>]*)?>([\\s\\S]*?)</script>", html, re.I)
+          if not scripts:
+              raise SystemExit("No inline game script found")
+          Path("/tmp/chattogram-game-check.js").write_text("\\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/chattogram-game-check.js
       - name: Configure GitHub Pages
-        # The repository must have Pages enabled once in Settings → Pages.
-        # The workflow token cannot enable the Pages site itself.
+        # Ask the action to enable Pages when the repository token permits it.
         uses: actions/configure-pages@v6
+        with:
+          enablement: true
       - name: Verify game entry point
         run: test -s index.html
       - name: Upload website artifact
