@@ -1,6 +1,6 @@
 # চাটগাঁর রাস্তা — Chattogram Arcade Drive
 
-A browser-playable, single-page arcade driving game inspired by the chaotic driving satire genre of Baper Rasta. This is an original implementation, not a copy of the original game's source or assets.
+A browser-playable Chattogram driving satire inspired by the public-facing gameplay concept and satirical tone of Baper Rasta. It uses original Canvas-rendered visuals and code, adapted with local roads, Bengali UI, local traffic, and tongue-in-cheek 'national damage' scoring.
 
 ## Run locally
 
@@ -8,7 +8,7 @@ A browser-playable, single-page arcade driving game inspired by the chaotic driv
 2. Open `index.html` in a modern desktop or mobile browser.
 3. Press **রাস্তায় নামেন** and choose a starting road.
 
-No build tools, server, login, or external libraries are required. The game draws its road, traffic, vehicles, roadside buildings and hills with HTML Canvas.
+No build tools, server, login, or external libraries are required. The game draws its road, traffic, vehicles, roadside buildings and hills with HTML Canvas. It includes national-damage scoring, a damage multiplier when driving off-road, fatal bus/truck collisions, a public-chase timer after non-fatal crashes, a boost charge meter, yellow recharge lines, pink case-close lines, and a local Most Wanted board.
 
 ## Controls
 
@@ -35,7 +35,7 @@ The in-game credit links to [Tausif Rahaman Raiyan's portfolio](https://tausif-r
 
 ## Publish on GitHub Pages
 
-Create a repository named `chattogram-baper-rasta`, upload the contents of this folder to the repository root, then open **Settings → Pages** and deploy from the `main` branch / root folder. The game entry point is `index.html`.
+The game entry point is `index.html`. The GitHub Actions workflow validates the inline JavaScript and deploys the repository root. It now asks `actions/configure-pages` to enable Pages where the workflow token has permission; if GitHub rejects that request, a repository administrator must enable **Settings → Pages → Source → GitHub Actions** once.
 
 ## Automatic website deployment
 
